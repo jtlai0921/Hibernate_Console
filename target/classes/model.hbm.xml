@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <!-- 一. book.orm -->
+    <class name="book.orm.model.Book" table="book">
+        <id column="b_id" name="id" type="int">
+            <generator class="native"/>
+        </id>
+        <property column="b_name" name="name" type="string"/>
+        <property column="b_price" name="price" type="int"/>
+    </class>
+    <class name="book.orm.model.Category" table="category">
+        <id column="c_id" name="id" type="int">
+            <generator class="native"/>
+        </id>
+        <property column="c_name" name="name" type="string"/>
+    </class>
+    <class name="book.orm.model.BookCategory" table="book_category">
+        <id column="bc_id" name="id" type="int">
+            <generator class="native"/>
+        </id>
+        <property column="c_id" name="c_id" type="int"/>
+        <property column="b_id" name="b_id" type="int"/>
+    </class>
+    
+    <!-- 二. stock.orm -->
+    <!-- 已移到 model.hbm_stock.xml -->
+    
+    <!-- 三. room.orm Many-to-One -->
+    <class name="room.orm.model.Room" table="room"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+        <property name="address" column="address" />   
+    </class> 
+    <class name="room.orm.model.Tenant" table="tenant"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+        <property name="name" column="name"/> 
+        <many-to-one name="room" 
+                     column="room_id"
+                     class="room.orm.model.Room"
+                     cascade="all"
+                     outer-join="true"/>  
+    </class>
+    
+    <!-- 四. room.orm One-to-Many -->
+    <class name="sales.orm.model.Sales" table="SALES">
+        <id name="emNo" type="java.lang.String">
+            <column name="EMNO" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="java.lang.String">
+            <column name="NAME" />
+        </property>
+        
+        <set name="customers" table="CUSTOMER" inverse="true" cascade="all">
+            <key column="EMNO" not-null="true" />
+            <one-to-many class="sales.orm.model.Customer" />
+        </set>
+    </class> 
+    
+    <class name="sales.orm.model.Customer" table="CUSTOMER">
+        <id name="cid" type="java.lang.String">
+            <column name="CID" />
+            <generator class="assigned" />
+        </id>
+        <property name="name" type="java.lang.String">
+            <column name="NAME" />
+        </property>
+        <property name="emNo" type="java.lang.String">
+            <column name="EMNO" />
+        </property>
+    </class>
+    
+    <!-- 五 一對多, 多對一 在 inverse 的應用-->
+    <class name="dept.orm.model.Employee" table="employee"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+        <property name="name" column="name"/> 
+        <many-to-one name="department" 
+                     column="department_id" 
+                     class="dept.orm.model.Department"
+                     cascade="save-update"
+                     outer-join="true"/> 
+    </class>
+    <class name="dept.orm.model.Department" table="department"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+        <property name="name" column="name" /> 
+        <set name="employees" table="employee" cascade="save-update" 
+             inverse="true">
+            <key column="department_id"/>
+            <one-to-many class="dept.orm.model.Employee"/>
+        </set>
+    </class> 
+    
+    <!-- 六. 一對一 外鍵關聯(<many-to-one> 的 unique="true" 設定) -->
+    <class name="store.orm.model.Pen" table="pen"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+        <property name="name" column="name"/> 
+        <many-to-one name="price" 
+                     column="price_id" 
+                     class="store.orm.model.Price"
+                     cascade="all"
+                     outer-join="true"
+                     unique="true"/>
+    </class> 
+    <class name="store.orm.model.Price" table="price"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+        <property name="money" column="money" /> 
+        <one-to-one name="pen"
+                    class="store.orm.model.Pen"
+                    property-ref="price"/>
+    </class>
+    
+    <!-- 七. 一對一 主鍵關聯 -->
+    <class name="store.orm.model.Ball" table="ball"> 
+        <id name="id" column="id"> 
+            <generator class="native"/> 
+        </id> 
+
+        <property name="name" column="name"/> 
+ 
+        <one-to-one name="color" 
+                    class="store.orm.model.Color"
+                    cascade="all"/>
+    </class> 
+    
+    <class name="store.orm.model.Color" table="color"> 
+        <id name="id" column="id"> 
+            <generator class="foreign"> 
+                <param name="property">ball</param>
+            </generator>
+        </id> 
+
+        <property name="name" column="name" /> 
+ 
+        <one-to-one name="ball"
+                    class="store.orm.model.Ball"
+                    constrained="true"/>
+    </class> 
+</hibernate-mapping>
